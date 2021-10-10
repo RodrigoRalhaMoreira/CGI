@@ -4,6 +4,8 @@ import { vec2, flatten } from"../../libs/MV.js";
 /** @type {WebGLRenderingContext}*/
 var gl;
 var program;
+var translation;
+var x = 0;
 
 function setup(shaders)
 {
@@ -12,6 +14,8 @@ function setup(shaders)
     gl = setupWebGL(canvas);
 
     program = buildProgramFromSources(gl, shaders["shader.vert"],shaders["shader.frag"]);
+
+    translation = gl.getUniformLocation(program, "dx");
 
     const vertices = [
         vec2(-0.5,-0.5),
@@ -46,7 +50,10 @@ function animate()
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.useProgram(program);
+    gl.uniform1f(translation, Math.sin(x));
+    x = x + 0.05;
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    
 }
-//loadShadersFromURLS(["shader.vert", "shader.frag"]).then(shaders => setup(shaders));
-setup(loadShadersFromScripts(["shader.vert", "shader.frag"]));
+loadShadersFromURLS(["shader.vert", "shader.frag"]).then(shaders => setup(shaders));
+//setup(loadShadersFromScripts(["shader.vert", "shader.frag"]));
