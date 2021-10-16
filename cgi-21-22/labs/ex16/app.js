@@ -62,6 +62,18 @@ function setup(shaders)
         gl.viewport(0,0,gl.canvas.width, gl.canvas.height);
      });
 
+    canvas.addEventListener("click", function(event) {
+        // Start by getting x and y coordinates inside the canvas element
+        const x = event.offsetX;
+        const y = event.offsetY;
+        
+        var centralX = canvas.width/2;
+        var centralX = canvas.width/2;
+        console.log("Click at (" + x + ", " + y + ")");
+        console.log(canvas.width);
+        console.log(canvas.height);
+    });
+
     window.requestAnimationFrame(animate);
 }
 
