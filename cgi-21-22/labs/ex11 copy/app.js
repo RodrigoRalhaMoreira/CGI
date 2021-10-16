@@ -1,18 +1,18 @@
 import { loadShadersFromURLS, loadShadersFromScripts, setupWebGL, buildProgramFromSources } from "../../libs/utils.js";
-import { vec2, flatten } from "../../libs/MV.js";
+import { vec2, flatten, add } from "../../libs/MV.js";
 
 /** @type {WebGLRenderingContext} */
 var gl;
 var program;
 
-const N_VERTICES = 100;
+const N_VERTICES = 50000;
 const SPEED = 0.01;
 
 function setup(shaders)
 {
     // Setup
     const canvas = document.getElementById("gl-canvas");
-    gl = setupWebGL(canvas);
+    gl = setupWebGL(canvas, { alpha: true });
 
     program = buildProgramFromSources(gl, shaders["shader.vert"], shaders["shader.frag"]);
 
@@ -20,8 +20,8 @@ function setup(shaders)
 
     function generateRandomVertex()
     {
-        var x = (Math.random() - 0.5)*2;
-        var y = (Math.random() - 0.5)*2;
+        var x = (Math.random() - 0.5)*0.2;
+        var y = (Math.random() - 0.5)*0.2;
         return vec2(x, y);
     }
 
@@ -30,10 +30,12 @@ function setup(shaders)
         let angle = 0;
         for(let i=0; i<count; i++) {
             // Generate start position
-            vertices.push(generateRandomVertex());
+            let delta = generateRandomVertex();
             // Generate end position
+            let point = vec2(2*i/count-1, Math.sin(3*angle));
+            vertices.push(add(delta, point));
             angle += 2*Math.PI/count;
-            vertices.push(vec2(Math.cos(angle), Math.sin(angle)));
+            vertices.push(vec2(point));
         }
     }
 
@@ -55,6 +57,10 @@ function setup(shaders)
     // Setup the viewport
     gl.viewport(0, 0, canvas.width, canvas.height);
 
+    // Enable Alpha blending
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); 
+
     // Setup the background color
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -72,9 +78,9 @@ function animate(time)
     gl.useProgram(program);
     
     const uT = gl.getUniformLocation(program, "uT");
-    gl.uniform1f(uT, (1+Math.sin(time*0.001))/2);
+    gl.uniform1f(uT, (1+Math.sin(time*0.004))/2);
     
-   gl.drawArrays(gl.LINE_LOOP, 0, N_VERTICES);
+   gl.drawArrays(gl.LINE_STRIP, 0, N_VERTICES);
 }
 
 loadShadersFromURLS(["shader.vert", "shader.frag"]).then(shaders => setup(shaders));
